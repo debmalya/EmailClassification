@@ -6,6 +6,7 @@
 package org.deb.emailclassification;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -19,8 +20,30 @@ import java.util.TreeMap;
  */
 public class EmailClassification {
 
-    private static Set<String> stopWords = new HashSet<>();
+    private static final Set<String> STOP_WORDS = new HashSet<>();
+
+    private static final Set<String> CLASSIFICATION = new HashSet<>();
+
+    private static Set<String> category = new HashSet<>();
+
+    public static Set<String> getCategory() {
+        return category;
+    }
+
+    public static Map<String, List<String>> getCategoryMapping() {
+        return categoryMapping;
+    }
+
+    public static Map<String, List<String>> getSubjectMapping() {
+        return subjectMapping;
+    }
+//    Category is the key and correspondging keywords, tokens.
+    private static Map<String, List<String>> categoryMapping = new HashMap<>();
+//    Each subject token is the key and  category list is the value.
+    private static Map<String, List<String>> subjectMapping = new HashMap<>();
     
+    private String theBody;
+
     static {
         init();
     }
@@ -35,6 +58,10 @@ public class EmailClassification {
      * more tokens, comma-separated.that character fields could contain commas
      * and, to avoid incorrect interpretation, the content of these columns
      * starts and ends with double quotes.
+     *
+     * Column 1 - ID. Column 2 - Subject. Column 3 - Body. Column 4 - Category.
+     *
+     *
      * @return any integer value can be returned.
      */
     public int train(int testType, String[] trainingData) {
@@ -48,6 +75,10 @@ public class EmailClassification {
                 break;
             default:
                 break;
+        }
+        if (trainingData.length > 3) {
+            category.add(trainingData[3]);
+            
         }
         return 0;
     }
@@ -109,7 +140,7 @@ public class EmailClassification {
      * @param xmlString
      * @return string without XML tag.
      */
-    public Map<String, Integer> countWordFrequence(final String xmlString) {
+    public Map<String, Integer> countWordFrequency(final String xmlString) {
         boolean isXMLTag = false;
         SortedMap<String, Integer> frequencyMap = new TreeMap<>();
         StringBuilder sb = new StringBuilder();
@@ -124,7 +155,7 @@ public class EmailClassification {
                 if (c == ' ') {
 //                    End of a word
                     String word = eachWord.toString();
-                    if (!stopWords.contains(word)) {
+                    if (!STOP_WORDS.contains(word)) {
                         Integer count = frequencyMap.get(word);
                         if (count == null) {
                             count = 0;
@@ -141,6 +172,7 @@ public class EmailClassification {
                 isXMLTag = false;
             }
         }
+        theBody = sb.toString();
         return frequencyMap;
     }
 
@@ -149,7 +181,53 @@ public class EmailClassification {
     }
 
     private static void init() {
-        stopWords.add("&amp;");
+        STOP_WORDS.add("&amp;");
+        STOP_WORDS.add("&gt;");
+        STOP_WORDS.add("&lt;");
+        STOP_WORDS.add("of");
+        STOP_WORDS.add("an");
+        STOP_WORDS.add("the");
+        STOP_WORDS.add("into");
+        STOP_WORDS.add("at");
+        STOP_WORDS.add("a");
+        STOP_WORDS.add("and");
+
+        CLASSIFICATION.add("AP processing errors");
+        CLASSIFICATION.add("Audit request");
+        CLASSIFICATION.add("Bank queries");
+        CLASSIFICATION.add("Bank rejections");
+        CLASSIFICATION.add("Bank rejections");
+        CLASSIFICATION.add("BMG");
+        CLASSIFICATION.add("CBCP escalation");
+        CLASSIFICATION.add("CBCP request");
+        CLASSIFICATION.add("Claim status");
+        CLASSIFICATION.add("Concur issues");
+        CLASSIFICATION.add("Contract Related");
+        CLASSIFICATION.add("Credit Card Maintenance");
+        CLASSIFICATION.add("FYI");
+        CLASSIFICATION.add("GL requests/ PC uplifts");
+        CLASSIFICATION.add("Invoice Status");
+        CLASSIFICATION.add("Invoices for scan");
+        CLASSIFICATION.add("JBA/SMF Maintenance");
+        CLASSIFICATION.add("Manual payment request");
+        CLASSIFICATION.add("Matching Report");
+        CLASSIFICATION.add("Missing documents/ supporting documentation");
+        CLASSIFICATION.add("Non AP documents Non PO Invoices (coding information, VAT)");
+        CLASSIFICATION.add("OIR");
+        CLASSIFICATION.add("Open Item reports");
+        CLASSIFICATION.add("Other, out of office messages");
+        CLASSIFICATION.add("Payment confirmation");
+        CLASSIFICATION.add("Payment reminder");
+        CLASSIFICATION.add("Payments (MPR, urgent payment requests, BMG)");
+        CLASSIFICATION.add("PO related");
+        CLASSIFICATION.add("Process updates");
+        CLASSIFICATION.add("Proof of payment");
+        CLASSIFICATION.add("Recall");
+        CLASSIFICATION.add("Two Way match report");
+        CLASSIFICATION.add("Urgent payment request");
+        CLASSIFICATION.add("Vendor master data");
+        CLASSIFICATION.add("Vendor statement");
+        CLASSIFICATION.add("Web Ex Trainings");
     }
 
 }
